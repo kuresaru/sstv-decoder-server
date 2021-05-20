@@ -37,12 +37,17 @@ class SSTVDecoder(object):
 
     """Create an SSTV decoder for decoding audio data"""
 
-    def __init__(self, audio_file):
+    def __init__(self, audio_file, slkraw=False):
         self.mode = None
 
         self._audio_file = audio_file
 
-        self._samples, self._sample_rate = soundfile.read(self._audio_file)
+        if slkraw:
+            self._samples, self._sample_rate = soundfile.read(
+                self._audio_file, channels=1, samplerate=24000,
+                endian='LITTLE', subtype='PCM_16', format='RAW')
+        else:
+            self._samples, self._sample_rate = soundfile.read(self._audio_file)
 
         if self._samples.ndim > 1:  # convert to mono if stereo
             self._samples = self._samples.mean(axis=1)

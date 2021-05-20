@@ -33,7 +33,6 @@ def silk():
     if f:
         tmp_slk = tempfile.mktemp() + '.slk'
         tmp_pcm = tempfile.mktemp() + '.pcm'
-        tmp_wav = tempfile.mktemp() + '.wav'
         with open(tmp_slk, "wb") as fw:
             data = f.read()
             fw.write(data)
@@ -41,20 +40,16 @@ def silk():
             f"./decoder {tmp_slk} {tmp_pcm} -quiet".split(' ')).wait()
         os.unlink(tmp_slk)
         if pret == 0:
-            pret = subprocess.Popen(
-                f"ffmpeg -y -f s16le -ar 24000 -ac 1 -i {tmp_pcm} {tmp_wav}".split(' ')).wait()
+            bimg = None
+            with SSTVDecoder(open(tmp_pcm, "rb"), slkraw=True) as sstv:
+                img = sstv.decode()
+                if img is None:  # No SSTV signal found
+                    return '', 204
+                bimg = BytesIO()
+                img.save(bimg, 'PNG')
             os.unlink(tmp_pcm)
-            if pret == 0:
-                bimg = None
-                with SSTVDecoder(open(tmp_wav, "rb")) as sstv:
-                    img = sstv.decode()
-                    if img is None:  # No SSTV signal found
-                        return '', 204
-                    bimg = BytesIO()
-                    img.save(bimg, 'PNG')
-                os.unlink(tmp_wav)
-                if bimg:
-                    return bimg.getvalue(), 200, {'Content-Type': 'image/png'}
+            if bimg:
+                return bimg.getvalue(), 200, {'Content-Type': 'image/png'}
     return '', 204
 
 
