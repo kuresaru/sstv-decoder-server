@@ -1,6 +1,9 @@
+import os
 from flask import Flask, request
 from sstv import SSTVDecoder
 from io import BytesIO
+import tempfile
+import subprocess
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -15,13 +18,44 @@ def decode():
             with SSTVDecoder(baudio) as sstv:
                 img = sstv.decode()
                 if img is None:  # No SSTV signal found
-                    return None, 204
+                    return '', 204
                 bimg = BytesIO()
                 img.save(bimg, 'PNG')
                 return bimg.getvalue(), 200, {'Content-Type': 'image/png'}
         except:
             pass
-    return 'Bad file', 400
+    return '', 204
+
+
+@app.route('/silk', methods=['POST'])
+def silk():
+    f = request.files.get('file')
+    if f:
+        tmp_slk = tempfile.mktemp() + '.slk'
+        tmp_pcm = tempfile.mktemp() + '.pcm'
+        tmp_wav = tempfile.mktemp() + '.wav'
+        with open(tmp_slk, "wb") as fw:
+            data = f.read()
+            fw.write(data)
+        pret = subprocess.Popen(
+            f"./decoder {tmp_slk} {tmp_pcm} -quiet".split(' ')).wait()
+        os.unlink(tmp_slk)
+        if pret == 0:
+            pret = subprocess.Popen(
+                f"ffmpeg -y -f s16le -ar 24000 -ac 1 -i {tmp_pcm} {tmp_wav}".split(' ')).wait()
+            os.unlink(tmp_pcm)
+            if pret == 0:
+                bimg = None
+                with SSTVDecoder(open(tmp_wav, "rb")) as sstv:
+                    img = sstv.decode()
+                    if img is None:  # No SSTV signal found
+                        return '', 204
+                    bimg = BytesIO()
+                    img.save(bimg, 'PNG')
+                os.unlink(tmp_wav)
+                if bimg:
+                    return bimg.getvalue(), 200, {'Content-Type': 'image/png'}
+    return '', 204
 
 
 if __name__ == '__main__':

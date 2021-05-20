@@ -1,9 +1,14 @@
-SSTV Decoder
+SSTV Decoder Server
 ============
 
 ![](https://raw.githubusercontent.com/colaclanth/sstv/master/examples/m1.png)
 
-A command line slow-scan television decoder that works on audio files rather than reading a soundcard (like most other decoders).
+A slow-scan television decoder that works on audio files over http restful api.
+
+Currently supports the following file types:
+* silk v3 (popular in IM)
+
+
 Currently supports the following modes:
 * Martin 1, 2
 * Scottie 1, 2, DX
