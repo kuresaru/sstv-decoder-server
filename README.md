@@ -17,20 +17,30 @@ Currently supports the following modes:
 Installation
 ------------
 
+```shell
+docker run -d -p 5000:5000 kuresaru/sstv-decoder-server
 ```
-$ git clone https://github.com/colaclanth/sstv.git
 
-$ python setup.py install
+Build from source
+-----------------
+
+```shell
+docker build -t kuresaru/sstv-decoder-server .
 ```
 
 Usage
 -----
 
-```
-$ sstv -d audio_file.wav -o result.png
+```shell
+# for wav/mp3/ogg ...etc
+curl -s "localhost:5000" -X POST -F "file=@test.wav" -o test.png
+# for silk v3
+curl -s "localhost:5000/silk" -X POST -F "file=@test.slk" -o test.png
 ```
 
 Resources Used
 --------------
 
 * SSTV specification/timings - [The Dayton Paper](http://webcache.googleusercontent.com/search?q=cache:GzP65FlYEtwJ:www.barberdsp.com/downloads/Dayton%2520Paper.pdf)
+* [SSTV Decoder](https://github.com/colaclanth/sstv)
+* [Silk V3 Decoder](https://github.com/kn007/silk-v3-decoder)
