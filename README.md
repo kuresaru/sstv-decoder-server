@@ -7,7 +7,7 @@ A slow-scan television decoder that works on audio files over http restful api.
 
 Currently supports the following file types:
 * silk v3 (popular in IM)
-
+* wav, mp3, ogg, and more popular audio formats
 
 Currently supports the following modes:
 * Martin 1, 2
