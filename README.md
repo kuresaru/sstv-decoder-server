@@ -18,7 +18,7 @@ Installation
 ------------
 
 ```shell
-docker run -d -p 5000:5000 kuresaru/sstv-decoder-server
+docker run -dt --restart=always --name sstv-decoder-server -p 5000:5000 kuresaru/sstv-decoder-server
 ```
 
 Build from source
